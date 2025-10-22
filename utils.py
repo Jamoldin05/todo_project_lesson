@@ -1,4 +1,5 @@
 import bcrypt
+from models import UserRole
 
 
 
@@ -21,3 +22,18 @@ class Response:
         
     def __str__(self):
         return f'{self.message} =  {self.status_code}'
+    
+
+
+
+def login_required():
+    def __login__(func):
+      def wrapper(user):
+            result = func(user)
+            if user != UserRole.USER.value:
+                raise Exception('Bu foydalanuvchi admin emas..')            
+            return result 
+        return wrapper
+    return __login__
+    
+    
