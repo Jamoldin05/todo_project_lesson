@@ -31,11 +31,6 @@ def commit(func):
     return wrapper
 
 
-
-
-# DRY  => Don't repeat yourself
-
-
 def create_user_table():
     user_query = """create table users(
             id serial primary key,
@@ -68,7 +63,7 @@ def init():
     create_todo_table()
     
     
-# init()
+
 
 
 @commit

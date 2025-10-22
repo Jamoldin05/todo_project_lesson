@@ -1,7 +1,9 @@
 import bcrypt
-from models import UserRole
+from serialazie import UserRegister
+from session import Session
 
 
+session = Session()
 
 
 def hash_password(raw_password : str):
@@ -23,17 +25,32 @@ class Response:
     def __str__(self):
         return f'{self.message} =  {self.status_code}'
     
-
-
-
-def login_required():
-    def __login__(func):
-      def wrapper(user):
-            result = func(user)
-            if user != UserRole.USER.value:
-                raise Exception('Bu foydalanuvchi admin emas..')            
-            return result 
-        return wrapper
-    return __login__
     
     
+def validate_user(dto : UserRegister):
+    assert dto.username , 'Username must be required'
+    assert dto.password , 'Password must be required'
+    
+    
+    
+    
+def login_required(func):
+    def wrapper(*args,**kwargs):
+        if not session.session:
+            return Response('Login required',404)
+        
+        return func(*args,**kwargs)
+    
+    return wrapper
+
+
+
+def is_admin(func):
+    def wrapper(*args,**kwargs):
+        if session.session.role != 'admin':
+            return Response('Only admin user can be changed')
+        
+        return func(*args,**kwargs)
+    return wrapper
+
+

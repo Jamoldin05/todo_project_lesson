@@ -1,6 +1,5 @@
 from models import User
 
-
 class Session:
     _instance = None
 
@@ -15,8 +14,6 @@ class Session:
     def add_session(self,user:User):
         self.session = user
         
+        
     def check_session(self):
         return self.session
-
-    def remove_session(self):
-        self.user = None

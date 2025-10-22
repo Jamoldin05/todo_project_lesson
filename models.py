@@ -44,4 +44,3 @@ class Todo:
     id : int | None = None
 
 
-

@@ -1,9 +1,8 @@
 from session import Session
-from utils import Response, match_password
-from db import cur
-from db import commit
-from models import User
-from utils import hash_password
+from utils import Response, match_password,validate_user, hash_password,login_required,is_admin
+from db import cur, commit
+from models import User, UserRole, TodoType
+from serialazie import UserRegister
 
 
 
@@ -11,7 +10,7 @@ session = Session()
 
 
 
-@commit
+
 def login(username : str, password : str):
     user = session.check_session()
     if user:
@@ -35,58 +34,75 @@ def login(username : str, password : str):
     return Response('You successfully logged in.')
     
     
-
-
     
-
 @commit
-def register(username: str, password: str, email: str):
-    user = session.check_session()
-    if user:
-        return Response('You already logged in', 400)
-
-    check_user_query = '''select * from users where username = %s;'''
-    cur.execute(check_user_query, (username,))
-    if cur.fetchone():
-        return Response('Username already taken', 400)
-
-    check_email_query = '''select * from users where email = %s;'''
-    cur.execute(check_email_query, (email,))
-    if cur.fetchone():
-        return Response('Email already registered', 400)
-
-  
-    hashed_password = hash_password(password)
-
-   
-    insert_user_query = '''
-        insert into users (username, password, email)
-        values (%s, %s, %s)
-        returning *;
+def register(username : str | None = None, password : str | None = None,email : str | None = None):
+    dto = UserRegister(username,password)
+    validate_user(dto)
+    get_user_by_username = '''select * from users where username = %s;'''
+    cur.execute(get_user_by_username,(username,))
+    user_data = cur.fetchone()
+    if user_data:
+        return Response(message='User already exists',status_code=404)
+    
+    insert_user_query = '''insert into users(username,password,email,role)
+        values (%s,%s,%s,%s);
     '''
-    cur.execute(insert_user_query, (username, hashed_password, email))
-    new_user_data = cur.fetchone()
+    
+    data = (dto.username,hash_password(dto.password),email, UserRole.USER.value)
+    cur.execute(insert_user_query,data)
+    return Response('User created',201)
 
 
-    new_user = User.from_tuple(new_user_data)
+
+def logout():
+    if session.session:
+        session.session = None
+        return Response('You logged out !',204)
+    
+    return Response('You must be login.',404)
 
 
-    session.add_session(new_user)
 
-    return Response('You successfully registered', 201)
+
+@login_required
+@is_admin
+@commit
+def add_todo(title : str, description : str | None = None ):
+    
+    user = session.session
+    
+    insert_todo_query = '''insert into todos(title,user_id,todo_type)
+        values(%s,%s,%s);
+    '''
+    
+    cur.execute(insert_todo_query,(title,user.id,TodoType.PERSONAL.value ))
+    return Response('Todo inserted',201)
+
+
+        
+@login_required
+@is_admin
+@commit
+def update_admin_role(user_id):
+    all_users_query = '''select * from users where role = 'user' ;'''
+    cur.execute(all_users_query)
+    users = cur.fetchall()
+    for user in users:
+        print(user)
+        
+    update_user_role_query = '''update users set role = 'admin' where id = %s; '''
+    cur.execute(update_user_role_query,(user_id,))
+    return Response('User updated',202)
+    
+        
+    
+        
+ 
+def get_user_todos():
+    pass
+
 
     
-
-
-
-@commit
-def logout():
-    user = session.check_session()
-    if not user:
-        return Response("You are not logged in", 400)
-
-    session.remove_session()
-    return Response("You have successfully logged out", 200)
-
     
     
