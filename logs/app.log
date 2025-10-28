@@ -1,0 +1,7 @@
+2025-10-28 22:52:50,825 - INFO - Todo Project ishga tushdi
+2025-10-28 22:52:50,826 - INFO - Yangi task qo‘shildi: Python loyihasini tugatish
+2025-10-28 22:52:50,829 - INFO - Yangi task qo‘shildi: PostgreSQL ulanishni sozlash
+2025-10-28 22:52:50,829 - INFO - Task yangilandi: 'Python loyihasini tugatish' \u2192 'Python loyihasini yakunlash'
+2025-10-28 22:52:50,830 - INFO - Task o‘chirildi: PostgreSQL ulanishni sozlash
+2025-10-28 22:52:50,830 - INFO - 1 ta task qaytarildi
+2025-10-28 22:52:50,830 - INFO - Todo Project yakunlandi

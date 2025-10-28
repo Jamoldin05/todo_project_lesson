@@ -1,6 +1,7 @@
 from service import login,register,logout,add_todo,update_admin_role
-
-
+import logging
+from crud import create_task, get_all_tasks, update_task, delete_task
+import os
 
 def login_page():
     username = input('Username : ')
@@ -80,3 +81,29 @@ def run():
             
 if __name__ == '__main__':
     run()
+
+
+
+os.makedirs("logs", exist_ok=True)
+
+logging.basicConfig(
+    filename="logs/app.log",     
+    level=logging.INFO,          
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    filemode="a"                 
+)
+
+def main():
+    logging.info("Todo Project ishga tushdi")
+
+    create_task("Python loyihasini tugatish")
+    create_task("PostgreSQL ulanishni sozlash")
+    update_task(0, "Python loyihasini yakunlash")
+    delete_task(1)
+
+    print(get_all_tasks())
+
+    logging.info("Todo Project yakunlandi")
+
+if __name__ == "__main__":
+    main()
